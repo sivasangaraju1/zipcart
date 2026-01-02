@@ -27,23 +27,46 @@ export default function ProductsScreen({ navigation }: any) {
 
     if (!user) return;
 
-    const { data: store } = await supabase
-      .from('stores')
-      .select('id')
-      .eq('owner_id', user.id)
+    const { data: storeOperator } = await supabase
+      .from('store_operators')
+      .select('store_id')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
       .single();
 
-    if (store) {
-      setStoreId(store.id);
+    if (storeOperator) {
+      setStoreId(storeOperator.store_id);
 
-      const { data: productsData } = await supabase
-        .from('products')
-        .select('*')
-        .eq('store_id', store.id)
-        .order('name');
+      const { data: inventoryData } = await supabase
+        .from('inventory')
+        .select(`
+          product_id,
+          quantity,
+          products (
+            id,
+            name,
+            description,
+            base_price,
+            is_active,
+            category_id,
+            slug
+          )
+        `)
+        .eq('store_id', storeOperator.store_id)
+        .order('products(name)');
 
-      if (productsData) {
-        setProducts(productsData);
+      if (inventoryData) {
+        const productsWithInventory = inventoryData.map((inv: any) => ({
+          id: inv.products.id,
+          name: inv.products.name,
+          description: inv.products.description,
+          price: inv.products.base_price,
+          stock: inv.quantity,
+          status: inv.products.is_active ? 'active' : 'inactive',
+          category_id: inv.products.category_id,
+          slug: inv.products.slug,
+        }));
+        setProducts(productsWithInventory);
       }
     }
 
@@ -51,11 +74,11 @@ export default function ProductsScreen({ navigation }: any) {
   };
 
   const toggleProductStatus = async (productId: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    const newIsActive = currentStatus !== 'active';
 
     const { error } = await supabase
       .from('products')
-      .update({ status: newStatus })
+      .update({ is_active: newIsActive })
       .eq('id', productId);
 
     if (error) {
