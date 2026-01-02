@@ -17,6 +17,8 @@ export default function LoginScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    console.log('handleLogin called - email:', email, 'password:', password ? '***' : 'empty');
+
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -30,9 +32,13 @@ export default function LoginScreen({ navigation }: any) {
     setLoading(false);
 
     if (error) {
+      console.error('Login error:', error);
       Alert.alert('Error', error.message);
     } else if (!data.session) {
+      console.error('No session returned');
       Alert.alert('Error', 'Login failed. Please try again.');
+    } else {
+      console.log('Login successful');
     }
   };
 

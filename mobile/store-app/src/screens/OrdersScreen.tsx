@@ -24,21 +24,29 @@ export default function OrdersScreen({ navigation }: any) {
   const fetchOrders = async () => {
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
-    const { data: store } = await supabase
-      .from('stores')
-      .select('id')
-      .eq('owner_id', user.id)
+    // Get the store through store_operators table
+    const { data: storeOperator } = await supabase
+      .from('store_operators')
+      .select('store_id')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
       .single();
 
-    if (store) {
-      setStoreId(store.id);
+    if (storeOperator) {
+      setStoreId(storeOperator.store_id);
 
       const { data: ordersData } = await supabase
         .from('orders')
-        .select('*, users!customer_id(full_name)')
-        .eq('store_id', store.id)
+        .select(`
+          *,
+          user_profiles!orders_user_id_fkey(id)
+        `)
+        .eq('store_id', storeOperator.store_id)
         .order('created_at', { ascending: false });
 
       if (ordersData) {
@@ -68,7 +76,7 @@ export default function OrdersScreen({ navigation }: any) {
       onPress={() => navigation.navigate('OrderDetail', { orderId: item.id })}
     >
       <View style={styles.orderHeader}>
-        <Text style={styles.orderCustomer}>{item.users?.full_name}</Text>
+        <Text style={styles.orderNumber}>Order #{item.order_number}</Text>
         <Text style={[styles.orderStatus, { color: getStatusColor(item.status) }]}>
           {item.status.toUpperCase()}
         </Text>
@@ -137,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
-  orderCustomer: {
+  orderNumber: {
     fontSize: 18,
     fontWeight: '600',
   },
