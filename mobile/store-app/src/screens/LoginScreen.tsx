@@ -23,14 +23,16 @@ export default function LoginScreen({ navigation }: any) {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
       password,
     });
     setLoading(false);
 
     if (error) {
       Alert.alert('Error', error.message);
+    } else if (!data.session) {
+      Alert.alert('Error', 'Login failed. Please try again.');
     }
   };
 
@@ -47,17 +49,24 @@ export default function LoginScreen({ navigation }: any) {
           style={styles.input}
           placeholder="Email"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(text) => setEmail(text)}
           autoCapitalize="none"
+          autoCorrect={false}
           keyboardType="email-address"
+          textContentType="emailAddress"
+          autoComplete="email"
         />
 
         <TextInput
           style={styles.input}
           placeholder="Password"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={(text) => setPassword(text)}
           secureTextEntry
+          autoCapitalize="none"
+          autoCorrect={false}
+          textContentType="password"
+          autoComplete="password"
         />
 
         <TouchableOpacity
