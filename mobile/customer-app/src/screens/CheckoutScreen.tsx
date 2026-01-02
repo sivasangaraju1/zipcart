@@ -33,13 +33,50 @@ export default function CheckoutScreen({ route, navigation }: any) {
 
     const storeId = cart[0]?.store_id;
 
+    if (!storeId) {
+      setLoading(false);
+      Alert.alert('Error', 'Invalid cart data');
+      return;
+    }
+
+    const { data: addressData, error: addressError } = await supabase
+      .from('addresses')
+      .insert({
+        user_id: user.id,
+        street_address: address,
+        city: 'City',
+        state: 'State',
+        zip_code: '00000',
+        label: 'delivery',
+      })
+      .select()
+      .single();
+
+    if (addressError || !addressData) {
+      setLoading(false);
+      Alert.alert('Error', 'Failed to save address: ' + (addressError?.message || ''));
+      return;
+    }
+
+    const subtotal = total;
+    const taxAmount = subtotal * 0.08;
+    const deliveryFee = 2.99;
+    const totalAmount = subtotal + taxAmount + deliveryFee;
+
+    const orderNumber = 'ZC' + Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
+
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
-        customer_id: user.id,
+        order_number: orderNumber,
+        user_id: user.id,
         store_id: storeId,
-        total_amount: total,
-        delivery_address: address,
+        address_id: addressData.id,
+        subtotal: subtotal,
+        tax_amount: taxAmount,
+        delivery_fee: deliveryFee,
+        tip_amount: 0,
+        total_amount: totalAmount,
         status: 'pending',
       })
       .select()
@@ -47,7 +84,7 @@ export default function CheckoutScreen({ route, navigation }: any) {
 
     if (orderError) {
       setLoading(false);
-      Alert.alert('Error', 'Failed to place order');
+      Alert.alert('Error', 'Failed to place order: ' + (orderError?.message || ''));
       return;
     }
 
@@ -55,7 +92,9 @@ export default function CheckoutScreen({ route, navigation }: any) {
       order_id: order.id,
       product_id: item.id,
       quantity: item.quantity,
-      price: item.price,
+      unit_price: item.price,
+      tax_amount: item.price * item.quantity * 0.08,
+      total_price: item.price * item.quantity * 1.08,
     }));
 
     const { error: itemsError } = await supabase
@@ -65,7 +104,7 @@ export default function CheckoutScreen({ route, navigation }: any) {
     setLoading(false);
 
     if (itemsError) {
-      Alert.alert('Error', 'Failed to save order items');
+      Alert.alert('Error', 'Failed to save order items: ' + (itemsError?.message || ''));
       return;
     }
 

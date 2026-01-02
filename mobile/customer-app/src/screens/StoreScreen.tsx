@@ -22,14 +22,32 @@ export default function StoreScreen({ route, navigation }: any) {
 
   const fetchProducts = async () => {
     const { data, error } = await supabase
-      .from('products')
-      .select('*')
+      .from('inventory')
+      .select(`
+        quantity,
+        product_id,
+        products:product_id (
+          id,
+          name,
+          description,
+          base_price,
+          image_url,
+          is_active
+        )
+      `)
       .eq('store_id', storeId)
-      .eq('status', 'active')
-      .order('name');
+      .eq('products.is_active', true)
+      .gt('quantity', 0);
 
     if (data) {
-      setProducts(data);
+      const productsWithInventory = data
+        .filter(item => item.products)
+        .map(item => ({
+          ...item.products,
+          stock: item.quantity,
+          price: item.products.base_price
+        }));
+      setProducts(productsWithInventory);
     }
     setLoading(false);
   };
@@ -43,7 +61,7 @@ export default function StoreScreen({ route, navigation }: any) {
       if (existingItem) {
         existingItem.quantity += 1;
       } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({ ...product, quantity: 1, store_id: storeId });
       }
 
       await AsyncStorage.setItem('cart', JSON.stringify(cart));

@@ -22,7 +22,7 @@ export default function HomeScreen({ navigation }: any) {
     const { data, error } = await supabase
       .from('stores')
       .select('*')
-      .eq('status', 'active')
+      .eq('is_active', true)
       .order('name');
 
     if (data) {
@@ -38,8 +38,10 @@ export default function HomeScreen({ navigation }: any) {
     >
       <View style={styles.storeInfo}>
         <Text style={styles.storeName}>{item.name}</Text>
-        <Text style={styles.storeDescription}>{item.description}</Text>
         <Text style={styles.storeAddress}>{item.address}</Text>
+        <Text style={styles.storeHours}>
+          {item.opens_at} - {item.closes_at}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -97,12 +99,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: '#111827',
   },
-  storeDescription: {
+  storeAddress: {
     fontSize: 14,
     color: '#6B7280',
     marginBottom: 5,
   },
-  storeAddress: {
+  storeHours: {
     fontSize: 12,
     color: '#9CA3AF',
   },

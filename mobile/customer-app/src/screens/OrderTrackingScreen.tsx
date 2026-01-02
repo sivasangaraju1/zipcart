@@ -37,13 +37,13 @@ export default function OrderTrackingScreen({ route }: any) {
   const fetchOrderDetails = async () => {
     const { data: orderData } = await supabase
       .from('orders')
-      .select('*, stores(name), delivery_partners(users(full_name))')
+      .select('*, stores(name), addresses(street_address, city, state, zip_code)')
       .eq('id', orderId)
       .single();
 
     const { data: itemsData } = await supabase
       .from('order_items')
-      .select('*, products(name, price)')
+      .select('*, products(name, base_price)')
       .eq('order_id', orderId);
 
     if (orderData) setOrder(orderData);
@@ -71,14 +71,14 @@ export default function OrderTrackingScreen({ route }: any) {
         <Text style={styles.infoText}>{order.stores?.name}</Text>
 
         <Text style={styles.sectionTitle}>Delivery Address</Text>
-        <Text style={styles.infoText}>{order.delivery_address}</Text>
+        <Text style={styles.infoText}>
+          {order.addresses?.street_address}, {order.addresses?.city}, {order.addresses?.state} {order.addresses?.zip_code}
+        </Text>
 
         {order.delivery_partner_id && (
           <>
             <Text style={styles.sectionTitle}>Delivery Partner</Text>
-            <Text style={styles.infoText}>
-              {order.delivery_partners?.users?.full_name || 'Assigned'}
-            </Text>
+            <Text style={styles.infoText}>Assigned</Text>
           </>
         )}
 
@@ -89,7 +89,7 @@ export default function OrderTrackingScreen({ route }: any) {
               {item.products?.name} x {item.quantity}
             </Text>
             <Text style={styles.itemPrice}>
-              ${(item.price * item.quantity).toFixed(2)}
+              ${(item.unit_price * item.quantity).toFixed(2)}
             </Text>
           </View>
         ))}
