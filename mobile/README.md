@@ -70,8 +70,8 @@ npm install
 Each app needs a `.env` file in its root directory with the following variables:
 
 ```env
-EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
-EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 Copy `.env.example` to `.env` and fill in your Supabase credentials.
