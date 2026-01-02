@@ -36,7 +36,7 @@ export default function SignupScreen({ navigation }: any) {
         data: {
           full_name: fullName,
           phone,
-          role: 'store_owner',
+          role: 'store_operator',
         },
       },
     });
@@ -48,21 +48,44 @@ export default function SignupScreen({ navigation }: any) {
     }
 
     if (data.user) {
-      const { error: storeError } = await supabase
+      // Create the store - note: stores table requires city, state, zip_code, latitude, longitude
+      // For now, we'll parse the address and use default coordinates
+      const { data: storeData, error: storeError } = await supabase
         .from('stores')
         .insert({
-          owner_id: data.user.id,
           name: storeName,
-          description: storeDescription,
           address,
-          phone,
-          status: 'active',
+          city: 'Unknown', // TODO: Parse from address or add city field
+          state: 'Unknown', // TODO: Parse from address or add state field
+          zip_code: '00000', // TODO: Parse from address or add zip field
+          latitude: 0, // TODO: Get from geocoding
+          longitude: 0, // TODO: Get from geocoding
+          is_active: true,
+        })
+        .select()
+        .single();
+
+      if (storeError || !storeData) {
+        setLoading(false);
+        console.error('Store error:', storeError);
+        Alert.alert('Error', `Failed to create store: ${storeError?.message || 'Unknown error'}`);
+        return;
+      }
+
+      // Link the store operator to their store
+      const { error: operatorError } = await supabase
+        .from('store_operators')
+        .insert({
+          user_id: data.user.id,
+          store_id: storeData.id,
+          is_active: true,
         });
 
       setLoading(false);
 
-      if (storeError) {
-        Alert.alert('Error', 'Failed to create store');
+      if (operatorError) {
+        console.error('Operator error:', operatorError);
+        Alert.alert('Error', `Failed to link operator to store: ${operatorError.message}`);
       } else {
         Alert.alert('Success', 'Store created successfully!', [
           { text: 'OK', onPress: () => navigation.navigate('Login') },
