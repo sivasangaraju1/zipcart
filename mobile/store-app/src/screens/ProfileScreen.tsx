@@ -19,7 +19,8 @@ export default function ProfileScreen() {
   }, []);
 
   const loadUserData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
     setUser(user);
 
     if (user) {
@@ -81,9 +82,11 @@ export default function ProfileScreen() {
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.profileCard}>
-          <Text style={styles.name}>{user?.user_metadata?.full_name || 'User'}</Text>
-          <Text style={styles.email}>{user?.email}</Text>
-          <Text style={styles.phone}>{user?.user_metadata?.phone}</Text>
+          <Text style={styles.name}>{user?.user_metadata?.name || user?.user_metadata?.full_name || 'Store Operator'}</Text>
+          <Text style={styles.email}>{user?.email || 'No email'}</Text>
+          {user?.user_metadata?.phone && (
+            <Text style={styles.phone}>{user.user_metadata.phone}</Text>
+          )}
         </View>
 
         {store && (
