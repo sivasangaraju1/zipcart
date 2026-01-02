@@ -23,14 +23,16 @@ export default function ProfileScreen() {
     setUser(user);
 
     if (user) {
-      const { data: storeData } = await supabase
-        .from('stores')
-        .select('*')
-        .eq('owner_id', user.id)
+      // Get the store through store_operators table
+      const { data: storeOperator } = await supabase
+        .from('store_operators')
+        .select('store_id, stores(*)')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
         .single();
 
-      if (storeData) {
-        setStore(storeData);
+      if (storeOperator?.stores) {
+        setStore(storeOperator.stores);
       }
     }
     setLoading(false);
@@ -39,18 +41,18 @@ export default function ProfileScreen() {
   const toggleStoreStatus = async () => {
     if (!store) return;
 
-    const newStatus = store.status === 'active' ? 'inactive' : 'active';
+    const newIsActive = !store.is_active;
 
     const { error } = await supabase
       .from('stores')
-      .update({ status: newStatus })
+      .update({ is_active: newIsActive })
       .eq('id', store.id);
 
     if (error) {
       Alert.alert('Error', 'Failed to update store status');
     } else {
-      setStore({ ...store, status: newStatus });
-      Alert.alert('Success', `Store is now ${newStatus}`);
+      setStore({ ...store, is_active: newIsActive });
+      Alert.alert('Success', `Store is now ${newIsActive ? 'active' : 'inactive'}`);
     }
   };
 
@@ -88,14 +90,13 @@ export default function ProfileScreen() {
           <View style={styles.storeCard}>
             <Text style={styles.storeTitle}>Store Information</Text>
             <Text style={styles.storeName}>{store.name}</Text>
-            <Text style={styles.storeDescription}>{store.description}</Text>
             <Text style={styles.storeAddress}>{store.address}</Text>
             <View style={[
               styles.statusBadge,
-              store.status === 'active' ? styles.statusActive : styles.statusInactive
+              store.is_active ? styles.statusActive : styles.statusInactive
             ]}>
               <Text style={styles.statusBadgeText}>
-                {store.status.toUpperCase()}
+                {store.is_active ? 'ACTIVE' : 'INACTIVE'}
               </Text>
             </View>
           </View>
@@ -107,7 +108,7 @@ export default function ProfileScreen() {
             onPress={toggleStoreStatus}
           >
             <Text style={styles.toggleButtonText}>
-              {store.status === 'active' ? 'Close Store' : 'Open Store'}
+              {store.is_active ? 'Close Store' : 'Open Store'}
             </Text>
           </TouchableOpacity>
         )}
