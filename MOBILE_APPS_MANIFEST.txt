@@ -1,0 +1,135 @@
+================================================================================
+ZIPCART MOBILE APPS - COMPLETE FILE MANIFEST  
+================================================================================
+
+All files listed below were created using the Write tool and should be 
+accessible through your development environment's file browser.
+
+================================================================================
+CUSTOMER APP (mobile/customer-app/)
+================================================================================
+
+Configuration Files:
+- package.json
+- tsconfig.json  
+- app.json
+- .env.example
+
+Root:
+- App.tsx
+
+Source Files (src/):
+
+lib/:
+- lib/supabase.ts
+- lib/database.types.ts
+
+contexts/:
+- contexts/AuthContext.tsx
+- contexts/CartContext.tsx
+
+navigation/:
+- navigation/RootNavigator.tsx
+- navigation/AuthNavigator.tsx
+- navigation/MainNavigator.tsx
+
+screens/auth/:
+- screens/auth/LoginScreen.tsx
+- screens/auth/SignupScreen.tsx
+
+screens/:
+- screens/HomeScreen.tsx
+- screens/StoreScreen.tsx
+- screens/CartScreen.tsx
+- screens/CheckoutScreen.tsx
+- screens/OrdersScreen.tsx
+- screens/OrderDetailScreen.tsx
+- screens/ProfileScreen.tsx
+
+================================================================================
+DELIVERY APP (mobile/delivery-app/)
+================================================================================
+
+Configuration Files:
+- package.json
+- tsconfig.json
+- app.json
+- .env.example
+
+Root:
+- App.tsx
+
+Source Files (src/):
+
+lib/:
+- lib/supabase.ts
+- lib/database.types.ts
+
+contexts/:
+- contexts/AuthContext.tsx
+
+navigation/:
+- navigation/RootNavigator.tsx
+- navigation/MainNavigator.tsx
+
+screens/:
+- screens/LoginScreen.tsx
+- screens/AvailableOrdersScreen.tsx
+- screens/ActiveDeliveriesScreen.tsx
+- screens/DeliveryDetailScreen.tsx
+- screens/ProfileScreen.tsx
+
+================================================================================
+STORE APP (mobile/store-app/)
+================================================================================
+
+Configuration Files:
+- package.json
+- tsconfig.json
+- app.json
+- .env.example
+
+Root:
+- App.tsx
+
+Source Files (src/):
+
+lib/:
+- lib/supabase.ts
+- lib/database.types.ts
+
+contexts/:
+- contexts/AuthContext.tsx
+
+navigation/:
+- navigation/RootNavigator.tsx
+- navigation/MainNavigator.tsx
+
+screens/:
+- screens/LoginScreen.tsx
+- screens/OrdersScreen.tsx
+- screens/OrderDetailScreen.tsx
+- screens/InventoryScreen.tsx
+- screens/ProfileScreen.tsx
+
+================================================================================
+DOCUMENTATION
+================================================================================
+
+- mobile/README.md (Setup and installation guide)
+- mobile/ARCHITECTURE.md (Technical architecture)
+- DEPLOYMENT.md (Deployment instructions)
+
+================================================================================
+TOTAL FILES CREATED: 50+ files across 3 apps
+================================================================================
+
+TO ACCESS:
+1. Navigate to the 'mobile/' folder in your file browser
+2. Each app is in its own subdirectory
+3. Follow the instructions in mobile/README.md to set up and run
+
+TO DOWNLOAD:
+- Use your IDE's export/download project feature
+- Or access the files through the file browser and copy them locally
+================================================================================
